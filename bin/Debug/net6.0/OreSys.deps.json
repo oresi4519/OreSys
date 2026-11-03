@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "OreSys/1.6.0": {
+      "OreSys/1.7.0": {
         "dependencies": {
           "ArchEmperorLib": "0.3.0.0",
           "Assembly-CSharp": "0.0.0.0",
@@ -97,7 +97,7 @@
     }
   },
   "libraries": {
-    "OreSys/1.6.0": {
+    "OreSys/1.7.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -20,11 +20,11 @@ namespace OreSys
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
             var isOnline = network ? network.GetComponent<NetworkManager>().IsInSteamLobby : false;
             var isPaused = pausemenu ? pausemenu.activeSelf : false;
-            var isinMatch = statusmanager ? statusmanager.GetRank_Match() != -1 : false;
-            if(inputActive && !isOnline && isinMatch)
+            var isinDesigner = MachineDesignerPatch.isindesigner;
+            if(inputActive && !isOnline && !isinDesigner)
             {
                 string message = GetRandomEncouragementMessage();
-                Plugin.Log.LogInfo((message) + " Retrying Match...");
+                Plugin.Log.LogInfo(string.IsNullOrEmpty(message) ? "Retrying Match..." : $"{message} Retrying Match...");
                 resumebutton.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
                 __instance.RetryMatch();
             }
@@ -38,7 +38,7 @@ namespace OreSys
                 {
                     Plugin.Log.LogInfo("Chill out, Artist. (Retry unavailable: architecture input inactive)");
                 }
-                else if(!isinMatch)
+                else if(isinDesigner)
                 {
                     Plugin.Log.LogInfo("Chill out, Artist. (Retry unavailable: is not in match)");
                 }                
@@ -76,7 +76,7 @@ namespace OreSys
     private static GameObject network;
     private static GameObject pausemenu;
     private static GameObject resumebutton;
-    private static readonly string[] encouragementMessages = new string[]
+    internal static readonly string[] DefaultEncouragementMessages = new string[]
         {
             "Every retry is a step closer to the ideal.",
             "Believe in yourself, Artist.",
@@ -88,6 +88,14 @@ namespace OreSys
     private static readonly System.Random random = new System.Random();
     public static string GetRandomEncouragementMessage()
         {
+            string[] encouragementMessages = Plugin.RetryEncouragementMessages.Value.Split(
+                '|',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (encouragementMessages.Length == 0)
+            {
+                return string.Empty;
+            }
+
             int index = random.Next(encouragementMessages.Length);
             return encouragementMessages[index];
         }
@@ -95,4 +103,3 @@ namespace OreSys
 
 
 }
-

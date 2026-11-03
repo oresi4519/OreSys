@@ -18,34 +18,34 @@ namespace OreSys
 
 		//Localization.RegisterTranslation();
 		//ModSettings.InitModConfig();
-		SettingBlock settingBlock = new SettingBlock();
-		settingBlock.AddSetting("test", "object");
+		//SettingBlock settingBlock = new SettingBlock();
+		//_test = new CycleConfigEntry<ModSettingsManager.ToggleEnum>(ArchEmperorLib.MyPluginInfo.PLUGIN_GUID, confGaiaDetailManager, ModSettingsManager.ConfigEnums.toggleEnums);
+		//settingBlock.AddSetting("test", "object");
 		ModManager.SetCredits(MyPluginInfo.PLUGIN_GUID, MakeCredits());
-		ModManager.SetSettings(MyPluginInfo.PLUGIN_GUID, settingBlock);
-
+		//ModManager.SetSettings(MyPluginInfo.PLUGIN_GUID, settingBlock);
 		//ModManager.OnModSettignsRefresh += guid => { if (guid == MyPluginInfo.PLUGIN_GUID) ModSettings.RefreshEntries(); };
 		//ModManager.OnModSettignsCancel += guid => { if (guid == MyPluginInfo.PLUGIN_GUID) ModSettings.RefreshEntries(); };
 		//ModManager.OnModSettignsApply += guid => { if (guid == MyPluginInfo.PLUGIN_GUID) ModSettings.OnSettingsApply(); };
 	}
 
-		private static CreditBlock MakeCredits()
+	private static CreditBlock MakeCredits()
+	{
+		CreditBlock creditBlock = new CreditBlock();
+		if (Plugin.assets)
 		{
-			CreditBlock creditBlock = new CreditBlock();
-			if (Plugin.assets)
-			{
-				creditBlock.AddLogo(Plugin.assets.LoadAsset<Sprite>("OreSysLogo"));
-			}
-			//creditBlock.AddText(CreditBlock.FONT_SIZE.TITLE, "ORESYS");
-			creditBlock.AddSeparator();
-			creditBlock.AddText(CreditBlock.FONT_SIZE.ROLE, "DEVELOPER");
-			creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "oresi1034");
-			creditBlock.AddSeparator();
-			creditBlock.AddText(CreditBlock.FONT_SIZE.ROLE, "SPECIAL THANKS");
-			creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "Merilax - For developing the ArchEmperorLib and making this mod possible.");
-			creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "CloudCluster - For taking care of the BreakArts Builders Discord.");
-			creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "The Break Arts community - For making this possible.");
-			return creditBlock;
+			creditBlock.AddLogo(Plugin.assets.LoadAsset<Sprite>("OreSysLogo"));
 		}
-
+		//creditBlock.AddText(CreditBlock.FONT_SIZE.TITLE, "ORESYS");
+		creditBlock.AddSeparator();
+		creditBlock.AddText(CreditBlock.FONT_SIZE.ROLE, "DEVELOPER");
+		creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "oresi1034");
+		creditBlock.AddSeparator();
+		creditBlock.AddText(CreditBlock.FONT_SIZE.ROLE, "SPECIAL THANKS");
+		creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "Merilax - For developing the ArchEmperorLib and making this mod possible.");
+		creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "CloudCluster - For taking care of the BreakArts Builders Discord.");
+		creditBlock.AddText(CreditBlock.FONT_SIZE.NORMAL, "The Break Arts community - For making this possible.");
+		return creditBlock;
+	}
+	
 	}
 }

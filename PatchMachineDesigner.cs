@@ -19,9 +19,7 @@ namespace OreSys
         {
             NullCheck();
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
-            statusmanager.UpdateCurrentRanks();
-            var isinMatch = statusmanager ? statusmanager.GetRank_Match() != -1 : false;
-            if(!isinMatch && !inputActive && !uiinputactive){
+            if(isindesigner && !inputActive && !uiinputactive){
                 if(heatpreviewactive && statusmanager.CurrentHeat != 0f)
                 {
                     Plugin.Log.LogInfo("Disabling heat preview...");
@@ -46,9 +44,9 @@ namespace OreSys
                 {
                     Plugin.Log.LogInfo("Heat preview unavailable: architecture input active");
                 }
-                else if(isinMatch)
+                else if(!isindesigner)
                 {
-                    Plugin.Log.LogInfo("Heat preview unavailable: is in match");
+                    Plugin.Log.LogInfo("Heat preview unavailable: is not in designer");
                 }
                 else if(uiinputactive)
                 {
@@ -69,10 +67,8 @@ namespace OreSys
         {
             NullCheck();
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
-            statusmanager.UpdateCurrentRanks();
-            var isinMatch = statusmanager ? statusmanager.GetRank_Match() != -1 : false;
 
-            if(!isinMatch && !inputActive && !uiinputactive)
+            if(isindesigner && !inputActive && !uiinputactive)
             {
                 var modules = machinemanager.GetSeparatableModules();
                 for (var i = 0; i < modules.Count; i++)
@@ -102,9 +98,9 @@ namespace OreSys
                 {
                     Plugin.Log.LogInfo("Separator preview unavailable: architecture input active");
                 }
-                else if(isinMatch)
+                else if(!isindesigner)
                 {
-                    Plugin.Log.LogInfo("Separator preview unavailable: is in match");
+                    Plugin.Log.LogInfo("Separator preview unavailable: is not in designer");
                 }
                 else if(uiinputactive)
                 {
@@ -126,10 +122,8 @@ namespace OreSys
         {
             NullCheck();
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
-            statusmanager.UpdateCurrentRanks();
-            var isinMatch = statusmanager ? statusmanager.GetRank_Match() != -1 : false;
 
-            if(!isinMatch && !inputActive && !uiinputactive)
+            if(isindesigner && !inputActive && !uiinputactive)
             {
                 if(statusmanager.IsOverdrive == true)
                 {
@@ -148,9 +142,9 @@ namespace OreSys
                 {
                     Plugin.Log.LogInfo("Overdrive preview unavailable: architecture input active");
                 }
-                else if(isinMatch)
+                else if(!isindesigner)
                 {
-                    Plugin.Log.LogInfo("Overdrive preview unavailable: is in match");
+                    Plugin.Log.LogInfo("Overdrive preview unavailable: is not in designer");
                 }
                 else if(uiinputactive)
                 {
@@ -198,6 +192,85 @@ namespace OreSys
         // Return original string if no number was found
         return input; 
     }*/
+    [HarmonyPostfix]
+	[HarmonyPatch(typeof(StatusManager), "Update")]
+    public static void RechargePluginsOnO(StatusManager __instance)
+    {
+        if(Keyboard.current != null &&
+            UnityEngine.InputSystem.Keyboard.current[Plugin.PluginRechargeKeybind.Value].wasPressedThisFrame)
+        {
+            NullCheck();
+            if(__instance != statusmanager)
+            {
+                return;
+            }
+            var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
+            var isOnline = network ? network.GetComponent<NetworkManager>().IsInSteamLobby : false;
+            if(inputActive && !isOnline && isindesigner)
+            {
+                Plugin.Log.LogInfo("Recharging Plugins...");
+                statusmanager.Plugins_Recharging[1] = 1.0f;
+                statusmanager.Plugins_Recharging[2] = 1.0f;
+            }
+            else
+            {
+                if(isOnline)
+                {
+                    Plugin.Log.LogInfo("Recharge unavailable: is online");
+                }
+                else if(!isindesigner)
+                {
+                    Plugin.Log.LogInfo("Recharge unavailable: is not in designer");
+                }
+                else if(!inputActive)
+                {
+                    Plugin.Log.LogInfo("Recharge unavailable: architecture input inactive");
+                }       
+                else
+                {
+                    Plugin.Log.LogError("Recharge unavailable: unknown reason");
+                }
+            }
+        }
+    }
+    [HarmonyPostfix]
+	[HarmonyPatch(typeof(MachineDesignerMain), "Update")]
+    public static void EmitterloadViewOnM()
+    {
+        if(Keyboard.current != null &&
+            UnityEngine.InputSystem.Keyboard.current[Plugin.EmitterPreviewKeybind.Value].wasPressedThisFrame)
+        {
+            NullCheck();
+            if(isindesigner && !uiinputactive)
+            {
+                Plugin.Log.LogInfo("Getting all emitterload...");
+                Transform[] allChildren = AC.GetComponentsInChildren<Transform>(true);
+                //Plugin.Log.LogInfo("AC =" + $"{AC}");
+                //Plugin.Log.LogInfo("allChildren =" + $"{allChildren}");
+                for(int i = 0; i < allChildren.Length; i++){
+                    Transform child = allChildren[i];
+                    //Plugin.Log.LogInfo("child = " + $"{child}");
+                    if(child != null && child.name.Contains("Wep_")){
+                        UsingController UC = child.GetComponent<UsingController>();
+                        if(UC != null){
+                            Plugin.Log.LogInfo($"{child.name} : " + $"{UC._GenerationLoad}, " + $"{UC._GenerationLoad / Config.EmitterGenerationReduceCoe} seconds");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if(!isindesigner)
+                {
+                    Plugin.Log.LogInfo("Emitterload view unavailable: is not in designer");
+                }           
+                else
+                {
+                    Plugin.Log.LogError("Emitterload view unavailable: unknown reason");
+                }
+            }
+        }
+    }
     private static void NullCheck()
     {
         if(!player)
@@ -208,13 +281,21 @@ namespace OreSys
         {
             statusmanager = player ? player.GetComponent<StatusManager>() : null;
         }
-        if(machinemanager == null)
+        if(!network)
+        {
+            network = GameObject.Find("GameSystem/Network");
+        }
+        if(!machinemanager)
         {
             machinemanager = player ? player.GetComponent<MachineManager>() : null;
         }
         if(!machinedesignerui)
         {
             machinedesignerui = GameObject.Find("GameSystem/MachineDesigner").GetComponent<MachineDesignerUI>();
+        }
+        if(!AC)
+        {
+            AC = player.transform.Find("ArchitectureComplex");
         }
         return;
     }
@@ -232,13 +313,23 @@ namespace OreSys
 	public static void OnCloseDesigner()
 	{
         uiinputactive = false;
-	}   
+        isindesigner = false;
+	}
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Scene_MainMenu), nameof(Scene_MainMenu.Designer_Design))]
+    public static void OnOpenDesigner()
+    {
+        isindesigner = true;
+    }   
     private static GameObject player;
     private static StatusManager statusmanager;
+    private static GameObject network;
     private static MachineManager machinemanager;
     private static MachineDesignerUI machinedesignerui;
+    private static Transform AC;
     private static bool heatpreviewactive = false;
     private static bool uiinputactive = false;
+    public static bool isindesigner = false;
     }
 }
 

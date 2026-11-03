@@ -4,6 +4,6 @@ namespace OreSys
     {
         public const string PLUGIN_GUID = "OreSys";
         public const string PLUGIN_NAME = "OreSys";
-        public const string PLUGIN_VERSION = "1.6.0";
+        public const string PLUGIN_VERSION = "1.7.0";
     }
 }

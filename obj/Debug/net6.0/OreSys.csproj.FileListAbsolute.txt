@@ -21,3 +21,4 @@ D:\OresiPlugins\OreSys\bin\Debug\net6.0\UniverseLib.BIE.IL2CPP.Interop.dll
 D:\OresiPlugins\OreSys\bin\Debug\net6.0\UnityEngine.UI.dll
 D:\OresiPlugins\OreSys\bin\Debug\net6.0\Fusion.Runtime.dll
 D:\OresiPlugins\OreSys\bin\Debug\net6.0\Unity.TextMeshPro.dll
+D:\OresiPlugins\OreSys\obj\Debug\net6.0\OreSys.sourcelink.json
