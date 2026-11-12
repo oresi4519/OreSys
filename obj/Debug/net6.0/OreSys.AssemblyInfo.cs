@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OreSys")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.7.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.7.0+10224b25a8c21d4aa3126d2bd0b5e10af10170c0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.7.0+f6b44eb7e9fed3b9a2824d5d35b6432d77a30e9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("OreSys")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OreSys")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.7.0.0")]

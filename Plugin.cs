@@ -38,6 +38,7 @@ public class Plugin : BasePlugin
     public static ConfigEntry<Key> OverdrivePreviewKeybind;
     public static ConfigEntry<Key> PhotomodeKeybind;
     public static ConfigEntry<Key> EmitterPreviewKeybind;
+    public static ConfigEntry<bool> SeparatePreviewAnimation;
     public static ConfigEntry<string> RetryEncouragementMessages;
 
     public override void Load()
@@ -74,7 +75,8 @@ public class Plugin : BasePlugin
     public static void LoadKeybinds()
     {
         RetryKeybind = config.Bind("Keybinds", "Retry Keybind", Key.T, "The keybind for retrying a match.");
-        RetryEncouragementMessages = config.Bind("Retry","Encouragement Messages",string.Join("|", RetryPatch.DefaultEncouragementMessages),"Encouragement messages to log when retrying a match. Leave it empty to disable encouragement messages.");
+        RetryEncouragementMessages = config.Bind("Preferences", "Encouragement Messages", string.Join("|", RetryPatch.DefaultEncouragementMessages), "Encouragement messages to log when retrying a match. Leave it empty to disable encouragement messages.");
+        SeparatePreviewAnimation = config.Bind("Preferences", "Enable Separation Anim", true, "Enables or disables animation that plays when previewing separator. Enabling it may cause unexpected behaviour when you toggle preview too fast.");
         PluginRechargeKeybind = config.Bind("Keybinds", "Plugin Recharge Keybind", Key.O, "The keybind for recharging plugins.");
         HeatPreviewKeybind = config.Bind("Keybinds", "Heat Preview Keybind", Key.U, "The keybind for toggling heat preview.");
         SeparatePreviewKeybind = config.Bind("Keybinds", "Separate Preview Keybind", Key.F, "The keybind for toggling separate preview.");

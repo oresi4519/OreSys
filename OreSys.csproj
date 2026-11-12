@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>OreSys</AssemblyName>
     <Product>OreSys</Product>
-    <Version>1.7.0</Version>
+    <Version>1.8.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -16,7 +16,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="PatchTemplate.cs" />
     <Reference Include="Assembly-CSharp">
       <HintPath>lib\Assembly-CSharp.dll</HintPath>
     </Reference>

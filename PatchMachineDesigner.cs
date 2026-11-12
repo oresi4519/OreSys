@@ -15,26 +15,20 @@ namespace OreSys
     public static void HeatPreviewOnU(MachineDesignerMain __instance)
     {
         if(Keyboard.current != null &&
-            UnityEngine.InputSystem.Keyboard.current[Plugin.HeatPreviewKeybind.Value].wasPressedThisFrame)
+            UnityEngine.InputSystem.Keyboard.current[Plugin.HeatPreviewKeybind.Value].wasPressedThisFrame &&
+            !PhotomodePatch.isinDiorama)
         {
             NullCheck();
+            machinedesignermain = __instance;
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
             if(isindesigner && !inputActive && !uiinputactive){
                 if(heatpreviewactive && statusmanager.CurrentHeat != 0f)
                 {
-                    Plugin.Log.LogInfo("Disabling heat preview...");
-                    __instance.Paint_PreviewHeating_Stop();
-                    statusmanager.CurrentHeat = 0f;
-                    statusmanager.UpdateHeat();
-                    heatpreviewactive = false;
+                    DisableHeatPreview();
                 }
                 else
                 {
-                    Plugin.Log.LogInfo("Activating heat preview...");
-                    __instance.Paint_PreviewHeating_Play();
-                    statusmanager.CurrentHeat = statusmanager.GetMaxHeat();
-                    statusmanager.UpdateHeat();
-                    heatpreviewactive = true;
+                    EnableHeatPreview();
                 }
                 machinedesignerui.Param_UpdateMachineStatus();
             }
@@ -63,34 +57,24 @@ namespace OreSys
 	[HarmonyPatch(typeof(MachineDesignerMain), "Update")]
     public static void SeparatePreviewOnF()
     {
-        if(Keyboard.current != null && Keyboard.current[Plugin.SeparatePreviewKeybind.Value].wasPressedThisFrame)
+        if(Keyboard.current != null && Keyboard.current[Plugin.SeparatePreviewKeybind.Value].wasPressedThisFrame &&
+        !PhotomodePatch.isinDiorama)
         {
             NullCheck();
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
 
             if(isindesigner && !inputActive && !uiinputactive)
             {
-                var modules = machinemanager.GetSeparatableModules();
-                for (var i = 0; i < modules.Count; i++)
+                if(!separatepreviewactive)
                 {
-                    var module = modules[i];
-                    if (module != null)
-                    {
-                        bool isSeparating = module.GetIsSeparating();
-                        if(isSeparating)
-                        {
-                            Plugin.Log.LogInfo("Disabling separator preview...");
-                            module.Unseparate(true);
-                        }
-                        else
-                        {
-                            Plugin.Log.LogInfo("Activating separator preview...");
-                            module.Separate();
-                        }
-                    }
+                    Plugin.Log.LogInfo("Enabling separator preview...");
+                    EnableSeparatePreview();
                 }
-                machinemanager.UpdateParamOnSeparation();
-                machinedesignerui.Param_UpdateMachineStatus();
+                else
+                {
+                    Plugin.Log.LogInfo("Disabling separator preview...");
+                    DisableSeparatePreview();
+                }
             } 
             else
             {
@@ -118,7 +102,8 @@ namespace OreSys
     public static void OverdrivePreviewOnK()
     {
         if(Keyboard.current != null &&
-            UnityEngine.InputSystem.Keyboard.current[Plugin.OverdrivePreviewKeybind.Value].wasPressedThisFrame)
+            UnityEngine.InputSystem.Keyboard.current[Plugin.OverdrivePreviewKeybind.Value].wasPressedThisFrame &&
+            !PhotomodePatch.isinDiorama)
         {
             NullCheck();
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
@@ -197,7 +182,8 @@ namespace OreSys
     public static void RechargePluginsOnO(StatusManager __instance)
     {
         if(Keyboard.current != null &&
-            UnityEngine.InputSystem.Keyboard.current[Plugin.PluginRechargeKeybind.Value].wasPressedThisFrame)
+            UnityEngine.InputSystem.Keyboard.current[Plugin.PluginRechargeKeybind.Value].wasPressedThisFrame &&
+            !PhotomodePatch.isinDiorama)
         {
             NullCheck();
             if(__instance != statusmanager)
@@ -238,7 +224,8 @@ namespace OreSys
     public static void EmitterloadViewOnM()
     {
         if(Keyboard.current != null &&
-            UnityEngine.InputSystem.Keyboard.current[Plugin.EmitterPreviewKeybind.Value].wasPressedThisFrame)
+            UnityEngine.InputSystem.Keyboard.current[Plugin.EmitterPreviewKeybind.Value].wasPressedThisFrame &&
+            !PhotomodePatch.isinDiorama)
         {
             NullCheck();
             if(isindesigner && !uiinputactive)
@@ -299,6 +286,66 @@ namespace OreSys
         }
         return;
     }
+    private static void DisableHeatPreview()
+    {
+        Plugin.Log.LogInfo("Disabling heat preview...");
+        machinedesignermain.Paint_PreviewHeating_Stop();         
+        statusmanager.CurrentHeat = 0f;                 
+        statusmanager.UpdateHeat();                     
+        heatpreviewactive = false;       
+    }
+    private static void EnableHeatPreview()
+    {
+        Plugin.Log.LogInfo("Activating heat preview...");
+        machinedesignermain.Paint_PreviewHeating_Play();
+        statusmanager.CurrentHeat = statusmanager.GetMaxHeat();
+        statusmanager.UpdateHeat();
+        heatpreviewactive = true;
+    }
+    private static void DisableSeparatePreview()
+    {
+        var modules = machinemanager.GetSeparatableModules();
+        if(modules.Count > 0)
+        {
+            for (var i = 0; i < modules.Count; i++)
+            {
+                separatepreviewactive = false;
+                var module = modules[i];
+                if (module != null)
+                {
+                    bool isSeparating = module.GetIsSeparating();
+                    if(isSeparating)
+                    {
+                        module.Unseparate(Plugin.SeparatePreviewAnimation.Value);                                    
+                    }
+                }
+            }
+            machinemanager.UpdateParamOnSeparation();
+            machinedesignerui.Param_UpdateMachineStatus();
+        }
+    }
+    private static void EnableSeparatePreview()
+    {
+        var modules = machinemanager.GetSeparatableModules();
+        if(modules.Count > 0)
+        {
+            separatepreviewactive = true;
+            for (var i = 0; i < modules.Count; i++)
+            {
+                var module = modules[i];
+                if (module != null)
+                {
+                    bool isSeparating = module.GetIsSeparating();
+                    if(!isSeparating)
+                    {
+                        module.Separate();                                    
+                    }
+                }
+            }
+            machinemanager.UpdateParamOnSeparation();
+            machinedesignerui.Param_UpdateMachineStatus();
+        }
+    }
     [HarmonyPostfix]
 	[HarmonyPatch(typeof(MachineDesignerUI), nameof(MachineDesignerUI.Start))]
 	public static void MachineDesignerUI_Start(MachineDesignerUI __instance)
@@ -312,8 +359,14 @@ namespace OreSys
 	[HarmonyPatch(typeof(Scene_MainMenu), nameof(Scene_MainMenu.Designer_CloseDesigner))]
 	public static void OnCloseDesigner()
 	{
+        NullCheck();
         uiinputactive = false;
         isindesigner = false;
+        DisableSeparatePreview();
+        if(heatpreviewactive)
+        {
+            DisableHeatPreview();
+        }
 	}
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Scene_MainMenu), nameof(Scene_MainMenu.Designer_Design))]
@@ -326,10 +379,13 @@ namespace OreSys
     private static GameObject network;
     private static MachineManager machinemanager;
     private static MachineDesignerUI machinedesignerui;
+    private static MachineDesignerMain machinedesignermain;
     private static Transform AC;
     private static bool heatpreviewactive = false;
+    private static bool separatepreviewactive = false;
     private static bool uiinputactive = false;
     public static bool isindesigner = false;
     }
 }
 
+               

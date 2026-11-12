@@ -13,7 +13,8 @@ namespace OreSys
     public static void RechargePluginsOnO(InGamePause __instance)
     {
         if(Keyboard.current != null &&
-            UnityEngine.InputSystem.Keyboard.current[Plugin.PhotomodeKeybind.Value].wasPressedThisFrame)
+            UnityEngine.InputSystem.Keyboard.current[Plugin.PhotomodeKeybind.Value].wasPressedThisFrame &&
+            !isinDiorama)
         {
             NullCheck();
             var inputActive = player ? player.GetComponent<LocalHumanInput>().IsEnable : false;
@@ -86,17 +87,33 @@ namespace OreSys
     private static GameObject photomodeexitbutton;
     private static InGamePause ingamepause;
     private static bool isinPhotomode = false;
+    public static bool isinDiorama = false;
     [HarmonyPostfix]
 	[HarmonyPatch(typeof(PhotoSettingManager), "DisablePhotoMode")]
     public static void ToggleVarOnExit(PhotoSettingManager __instance)
     {
-        NullCheck();
-        if(ingamepause.timeScaleTemp == 0f)
+        if(!isinDiorama)
         {
-            ingamepause.timeScaleTemp = 1f;
+            NullCheck();
+            if(ingamepause.timeScaleTemp == 0f)
+            {
+                ingamepause.timeScaleTemp = 1f;
+            }
+            isinPhotomode = false;
         }
-        isinPhotomode = false;
     }
+    [HarmonyPostfix]
+	[HarmonyPatch(typeof(GeoramaSystem), nameof(GeoramaSystem.Start))]
+	public static void OnOpenDiorama(GeoramaSystem __instance)
+	{
+        isinDiorama = true;
+	}
+    [HarmonyPrefix]
+	[HarmonyPatch(typeof(GeoramaSystem), nameof(GeoramaSystem.ReturnToMainMenu))]
+	public static void OnCloseDiorama()
+	{
+        isinDiorama = false;
+	}
     }   
 }
 
